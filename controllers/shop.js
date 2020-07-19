@@ -1,5 +1,6 @@
 const Product = require('../models/product')
 const Order = require('../models/order')
+const OrderItem = require('../models/order-item')
 
 exports.getAllProducts = (req, res, next) => {
     Product.findAll()
@@ -18,85 +19,44 @@ exports.getProduct = (req, res, next) => {
         .catch((err) => console.log(err))
 }
 
-exports.postCart = (req, res, next) => {
-    const { productId } = req.body
-    let fetchedCart
-    let newQuantity = 1
-    req.user
-        .getCart()
-        .then((cart) => {
-            fetchedCart = cart
-            return cart.getProducts({ where: { id: productId } })
-        })
-        .then((products) => {
-            let product
-            if (products.length > 0) {
-                product = products[0]
-            }
-
-            if (product) {
-                const oldQuantity = product.cartItem.quantity
-                newQuantity = oldQuantity + 1
-                return product
-            }
-            return Product.findByPk(productId)
-        })
-        .then((product) => {
-            return fetchedCart.addProduct(product, {
-                through: { quantity: newQuantity },
-            })
-        })
+exports.getOrders = (req, res, next) => {
+    Order.findAll({
+        include: [
+            {
+                model: Product,
+                required: true,
+            },
+        ],
+    })
         .then((result) => {
+            console.log(result)
             res.json(result)
         })
-        .catch((err) => console.log(err))
-}
-
-exports.postCartDeleteProduct = (req, res, next) => {
-    const { productId } = req.body
-    req.user
-        .getCart()
-        .then((cart) => {
-            return cart.getProducts({ where: { id: productId } })
+        .catch((err) => {
+            console.log(err)
+            res.json(err)
         })
-        .then((products) => {
-            const product = products[0]
-            return product.cartItem.destroy()
-        })
-        .then((result) => {
-            res.json(result)
-        })
-        .catch((err) => console.log(err))
 }
 
 exports.postOrder = (req, res, next) => {
-    let fetchedCart
-    req.user
-        .getCart()
-        .then((cart) => {
-            fetchedCart = cart
-            return cart.getProducts()
-        })
-        .then((products) => {
-            return req.user
-                .createOrder()
-                .then((order) => {
-                    return order.addProducts(
-                        products.map((product) => {
-                            product.orderItem = {
-                                quantity: product.cartItem.quantity,
-                            }
-                            return product
-                        })
-                    )
-                })
-                .catch((err) => console.log(err))
-        })
-        .then((result) => {
-            return fetchedCart.setProducts(null)
+    const { name, address, phoneNumber, products } = req.body
+    Order.create({
+        name,
+        address,
+        phoneNumber,
+    })
+        .then((order) => {
+            const orderItems = products.map((product) => ({
+                productId: product.id,
+                orderId: order.id,
+                quantity: product.quantity,
+            }))
+            return OrderItem.bulkCreate(orderItems, { returning: true })
         })
         .then((result) => {
             res.json(result)
         })
-        .catch((err) => console.log(err))
+        .catch((err) => {
+            res.json(err)
+        })
 }

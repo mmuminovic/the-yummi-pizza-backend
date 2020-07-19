@@ -3,32 +3,23 @@ const bodyParser = require('body-parser')
 
 const sequelize = require('./database')
 const Product = require('./models/product')
-const User = require('./models/user')
-const Cart = require('./models/cart')
-const CartItem = require('./models/cart-item')
 const Order = require('./models/order')
 const OrderItem = require('./models/order-item')
 
 const shopRoutes = require('./routes/shop')
-const adminRoutes = require('./routes/admin')
+const adminRoutes = require('./routes/products')
+const userRoutes = require('./routes/user')
 
 const app = express()
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.use('/v1/admin', adminRoutes)
+app.use('/v1/products', adminRoutes)
 app.use('/v1/shop', shopRoutes)
+app.use('/v1/auth', userRoutes)
 
-Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' })
-User.hasMany(Product)
-User.hasOne(Cart)
-Cart.belongsTo(User)
-Cart.belongsToMany(Product, { through: CartItem })
-Product.belongsToMany(Cart, { through: CartItem })
-Order.belongsTo(User)
-User.hasMany(Order)
-Order.belongsToMany(Product, { through: OrderItem })
+Order.belongsToMany(Product, { through: { model: OrderItem, unique: false } })
 
 sequelize
     .sync()

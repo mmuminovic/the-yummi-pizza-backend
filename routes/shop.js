@@ -1,19 +1,32 @@
-const path = require('path')
-
 const express = require('express')
-
-const shopController = require('../controllers/shop')
+const { body } = require('express-validator')
+const {
+    getAllProducts,
+    getOrders,
+    getProduct,
+    postOrder,
+} = require('../controllers/shop')
 
 const router = express.Router()
 
-router.get('/', shopController.getAllProducts)
+router.get('/products', getAllProducts)
 
-router.get('/:productId', shopController.getProduct)
+router.get('/orders', getOrders)
 
-router.post('/cart', shopController.postCart)
+router.get('/:productId', getProduct)
 
-router.patch('/cart/remove', shopController.postCartDeleteProduct)
-
-router.post('/order', shopController.postOrder)
+router.post(
+    '/orders',
+    [
+        body('name').isString().notEmpty().withMessage('Enter your name'),
+        body('address').isString().notEmpty().withMessage('Enter your address'),
+        body('phoneNumber')
+            .isString()
+            .notEmpty()
+            .withMessage('Enter your phone number'),
+        body('products').isArray().notEmpty(),
+    ],
+    postOrder
+)
 
 module.exports = router
