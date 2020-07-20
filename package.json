@@ -1,5 +1,5 @@
 {
-  "name": "pizza-shop-delivery-backend",
+  "name": "the-yummi-pizza-backend",
   "version": "1.0.0",
   "description": "backend for pizza shop delivery app",
   "main": "server.js",
@@ -15,7 +15,9 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-validator": "^6.6.0",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.1.0",
     "sequelize": "^6.3.3"
