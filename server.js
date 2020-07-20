@@ -11,6 +11,8 @@ const shopRoutes = require('./routes/shop')
 const adminRoutes = require('./routes/products')
 const userRoutes = require('./routes/user')
 
+const error404 = require('./controllers/error')
+
 const app = express()
 
 const dotenv = require('dotenv')
@@ -23,6 +25,8 @@ app.use(cors())
 app.use('/v1/products', adminRoutes)
 app.use('/v1/shop', shopRoutes)
 app.use('/v1/auth', userRoutes)
+
+app.use(error404)
 
 Order.belongsToMany(Product, { through: { model: OrderItem, unique: false } })
 
