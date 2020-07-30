@@ -19,7 +19,6 @@ router.post(
             .notEmpty()
             .withMessage('Enter product description'),
         body('price').isNumeric().notEmpty().withMessage('Enter product price'),
-        body('products').isArray().notEmpty(),
         body('imageUrl').isURL().notEmpty().withMessage('Enter valid url'),
     ],
     postAddProduct
@@ -35,7 +34,6 @@ router.patch(
             .notEmpty()
             .withMessage('Enter product description'),
         body('price').isNumeric().notEmpty().withMessage('Enter product price'),
-        body('products').isArray().notEmpty(),
         body('imageUrl').isURL().notEmpty().withMessage('Enter valid url'),
     ],
     postEditProduct
